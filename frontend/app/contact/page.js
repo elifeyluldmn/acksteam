@@ -32,8 +32,8 @@ export default function Contact() {
         <h2 style={{ fontSize: "2rem", color: "#2c3e50" }}>Get in Touch</h2>
         <p style={{ fontSize: "1.2rem", marginBottom: "15px" }}>We are happy to assist you!</p>
 
-        <p><b>Email:</b> <a href="mailto:info@acksteam.com" style={{ color: "#007bff", textDecoration: "none" }}>info@acksteam.com</a></p>
-        <p><b>Phone:</b> <a href="tel:+15081234567" style={{ color: "#007bff", textDecoration: "none" }}>(508) 123-4567</a></p>
+        <p><b>Email:</b> <a href="mailto:steamnantucket@gmail.com" style={{ color: "#007bff", textDecoration: "none" }}>info@acksteam.com</a></p>
+        <p><b>Phone:</b> <a href="tel:+14055343295" style={{ color: "#007bff", textDecoration: "none" }}>(508) 123-4567</a></p>
         <p><b>Location:</b> Nantucket, MA</p>
       </div>
 
