@@ -1,12 +1,11 @@
 "use client";
 import { useState } from "react";
-import sendEmail from "../../utils/emailService"; // Email gönderme servisini içe aktar
 
 export default function Booking() {
   const [formData, setFormData] = useState({
-    startDate: "", // Başlangıç tarihi
-    endDate: "",   // Bitiş tarihi
-    rentalType: "daily", // Default: Günlük kiralama
+    startDate: "",
+    endDate: "",
+    rentalType: "overnight",
     products: [],
     name: "",
     phone: "",
@@ -14,44 +13,36 @@ export default function Booking() {
     address: "",
   });
 
-  // Ürünlerin fiyatları
   const productPrices = {
     sauna: 100,
     coldPlunge: 80,
     fireWoods: 30,
   };
 
-  // Seçilen ürünlere göre toplam fiyatı hesapla
   const calculateTotal = () => {
     let basePrice = 0;
-  
-    // Seçilen ürünlerin toplamını hesapla
     formData.products.forEach((product) => {
       basePrice += productPrices[product];
     });
-  
-    const rentalDuration = calculateRentalDuration(); // gün farkı
-  
-    let totalPrice = basePrice * rentalDuration;
-  
-    // Haftalık ve üstü indirimler
-    if (rentalDuration >= 30) {
-      totalPrice *= 0.65; // %35 indirim
-    } else if (rentalDuration >= 7) {
-      totalPrice *= 0.8; // %20 indirim
-    }
-  
-    return Math.round(totalPrice); // yuvarlanmış fiyat
-  };
-  
 
-  // Kiralama süresi hesaplama (başlangıç ve bitiş tarihine göre)
+    const rentalDuration = calculateRentalDuration();
+    let totalPrice = basePrice * rentalDuration;
+
+    if (rentalDuration >= 30) {
+      totalPrice *= 0.65;
+    } else if (rentalDuration >= 7) {
+      totalPrice *= 0.8;
+    }
+
+    return Math.round(totalPrice);
+  };
+
   const calculateRentalDuration = () => {
     const startDate = new Date(formData.startDate);
     const endDate = new Date(formData.endDate);
-    const timeDiff = endDate - startDate; // Zaman farkı
-    const dayDiff = timeDiff / (1000 * 3600 * 24); // Gün farkı
-    return dayDiff > 0 ? dayDiff : 1; // Gün sayısı 1'den küçük olamaz
+    const timeDiff = endDate - startDate;
+    const dayDiff = timeDiff / (1000 * 3600 * 24);
+    return dayDiff > 0 ? dayDiff : 1;
   };
 
   const handleChange = (e) => {
@@ -71,7 +62,7 @@ export default function Booking() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     const reservationData = {
       name: formData.name,
       startDate: formData.startDate,
@@ -83,40 +74,23 @@ export default function Booking() {
       address: formData.address,
       totalPrice: calculateTotal(),
     };
-  
+
     try {
-      // Backend'e POST isteği gönder
-      const response = await fetch('/api/reservation', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/reservation", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(reservationData),
       });
-  
+
       if (response.ok) {
-        alert("Reservation confirmed!");
+        alert(`Reservation submitted successfully! Total Price: $${calculateTotal()}`);
       } else {
         alert("There was an issue with your reservation.");
       }
-  
-      // E-posta gönder
-      const reservationDetails = `
-        Name: ${formData.name}
-        Start Date: ${formData.startDate}
-        End Date: ${formData.endDate}
-        Products: ${formData.products.join(", ")}
-        Rental Type: ${formData.rentalType}
-        Phone: ${formData.phone}
-        Email: ${formData.email}
-        Address: ${formData.address}
-      `;
-      sendEmail("owner-email@example.com", reservationDetails);  // Site sahibine e-posta gönderir
-  
-      alert(`Reservation submitted successfully! Total Price: $${calculateTotal()}`);
     } catch (error) {
       console.error("Error:", error);
     }
   };
-  
 
   return (
     <div style={{
@@ -166,11 +140,20 @@ export default function Booking() {
         <select name="rentalType" value={formData.rentalType} onChange={handleChange} style={{
           width: "100%", padding: "12px", marginTop: "5px", borderRadius: "5px", border: "1px solid #ccc"
         }}>
-          <option value="daily">Daily</option>
+          <option value="overnight">Overnight</option>
           <option value="weekly">Weekly</option>
           <option value="monthly">Monthly</option>
           <option value="seasonal">Seasonal</option>
         </select>
+
+        <p style={{
+          fontSize: "0.9rem",
+          fontStyle: "italic",
+          color: "#666",
+          marginTop: "10px"
+        }}>
+          Overnight rentals include early morning delivery and next-day pickup.
+        </p>
 
         <h2 style={{ fontSize: "1.5rem", marginTop: "20px" }}>Select Products</h2>
         <label><input type="checkbox" value="sauna" onChange={handleProductChange} /> Sauna ($100)</label><br />
